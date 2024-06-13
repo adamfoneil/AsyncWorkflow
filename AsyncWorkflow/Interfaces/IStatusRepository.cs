@@ -2,10 +2,8 @@
 
 namespace AsyncWorkflow.Interfaces;
 
-public interface IStatusRepository<TKey, TStatus> 
-    where TStatus : Enum
-    where TKey : struct
+public interface IStatusRepository<TKey> where TKey : struct
 {
-    Task AppendHistoryAsync(StatusLogEntry<TKey, TStatus> history);
-    Task<IEnumerable<StatusLogEntry<TKey, TStatus>>> GetHistoryAsync(TKey key);
+    Task AppendHistoryAsync(StatusLogEntry<TKey> history);
+    Task<IEnumerable<StatusLogEntry<TKey>>> GetHistoryAsync(TKey key);
 }
