@@ -1,6 +1,7 @@
 ﻿using AsyncWorkflow.Dapper.Extensions;
 using AsyncWorkflow.Interfaces;
 using AsyncWorkflow.Records;
+using Dapper;
 using Microsoft.Extensions.Options;
 using System.Data;
 
@@ -16,15 +17,19 @@ public class Queue(Func<IDbConnection> connectionFactory, IOptions<QueueSqlOptio
 		using var cn = _connectionFactory.Invoke();
 
 		var (result, _) = await cn.DequeueAsync<Message>(
-			_options.QueueTable, _options.QueueTableCriteria, 
+			_options.QueueTable, "MachineName = @machineName AND Handler = @handler", 
 			new { machineName, handler });
 
 		return result;
 	}
 
-	public Task<string> EnqueueAsync(string machineName, Message message)
+	public async Task EnqueueAsync(string machineName, Message message)
 	{
-		throw new NotImplementedException();
+		using var cn = _connectionFactory.Invoke();
+
+		await cn.ExecuteAsync(
+			$"INSERT INTO {_options.QueueTable} (Id, MachineName, Handler, Payload, UserName) VALUES (@id, @machineName, @handler, @payload, @userName)",
+			new { message.Id, machineName, message.Handler, message.Payload, message.UserName });
 	}
 
 	public Task LogFailureAsync(string machineName, Message message, Exception exception, CancellationToken cancellationToken)
