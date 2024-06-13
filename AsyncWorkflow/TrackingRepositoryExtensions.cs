@@ -2,7 +2,7 @@
 
 public static class TrackingRepositoryExtensions
 {
-	public static async Task<IEnumerable<StatusLogEntry<TStatus>>> GetLatestAsync<TStatus>(this ITrackingRepository<TStatus> repository, string key) where TStatus : Enum
+	public static async Task<IEnumerable<StatusLogEntry<TStatus>>> GetLatestAsync<TStatus>(this IStatusRepository<TStatus> repository, string key) where TStatus : Enum
 	{
 		var history = await repository.GetHistoryAsync(key);
 		return history

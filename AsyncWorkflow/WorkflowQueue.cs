@@ -6,12 +6,12 @@ namespace AsyncWorkflow;
 
 public abstract class WorkflowQueue<TPayload, TStatus>(
 	IQueue queue, 
-	ITrackingRepository<TStatus> trackingRepository, 
+	IStatusRepository<TStatus> statusRepository, 
 	ILogger<WorkflowQueue<TPayload, TStatus>> logger) : BackgroundService 
 	where TStatus : Enum	
 {
 	protected readonly IQueue Queue = queue;
-	protected readonly ITrackingRepository<TStatus> TrackingRepository = trackingRepository;
+	protected readonly IStatusRepository<TStatus> StatusRepository = statusRepository;
 	protected ILogger<WorkflowQueue<TPayload, TStatus>> Logger { get; } = logger;
 	protected string MachineName { get; } = Environment.MachineName;
 
@@ -29,35 +29,49 @@ public abstract class WorkflowQueue<TPayload, TStatus>(
 
 				if (status is not null && payload is ITrackedPayload trackedPayload)
 				{
-					var history = new StatusLogEntry<TStatus>(trackedPayload.Key, HandlerName, status);
-					await TrackingRepository.AppendHistoryAsync(history);
+					try
+					{
+						var history = new StatusLogEntry<TStatus>(trackedPayload.Key, HandlerName, status);
+						await StatusRepository.AppendHistoryAsync(history);
+					}
+					catch (Exception exc)
+					{
+						Logger.LogError(exc, "StatusRepository.AppendHistory failed");
+					}
 				}
 			}
 			catch (Exception exc)
 			{
-				Logger.LogError(exc, "ProcessNextMessage failed");
-			}			
+				Logger.LogError(exc, "ExecuteAsync failed");
+			}
 		}
 	}
 
 	public async Task<(TStatus?, TPayload)> ProcessNextMessageAsync(CancellationToken stoppingToken)
 	{
-		var message = await Queue.DequeueAsync(MachineName, HandlerName, stoppingToken);
-
-		if (message is not null)
+		try
 		{
-			var payload = JsonSerializer.Deserialize<TPayload>(message.Payload) ?? throw new Exception($"Couldn't deserialize payload from queue message Id {message.Id}");
+			var message = await Queue.DequeueAsync(MachineName, HandlerName, stoppingToken);
 
-			try
+			if (message is not null)
 			{
-				return (await ProcessMessageAsync(message, payload, stoppingToken), payload);
+				try
+				{
+					var payload = JsonSerializer.Deserialize<TPayload>(message.Payload) ?? throw new Exception($"Couldn't deserialize payload from queue message Id {message.Id}");
+
+					return (await ProcessMessageAsync(message, payload, stoppingToken), payload);
+				}
+				catch (Exception exc)
+				{
+					Logger.LogError(exc, "ProcessNextMessageAsync failed after dequeue {@message}", message);
+					await Queue.LogFailureAsync(MachineName, message, exc, stoppingToken);
+				}
 			}
-			catch (Exception exc)
-			{
-				Logger.LogError(exc, "ProcessMessageFailed, messageId {Id}", message.Id);
-				await Queue.LogFailureAsync(MachineName, message, exc, stoppingToken);
-			}			
 		}
+		catch (Exception exc)
+		{
+			Logger.LogError(exc, "ProcessNextMessageAsync failed on dequeue");
+		}		
 
 		return default;
 	}
