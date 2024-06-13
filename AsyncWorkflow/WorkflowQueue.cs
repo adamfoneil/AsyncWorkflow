@@ -10,7 +10,7 @@ public abstract class WorkflowQueue<TPayload, TKey>(
 	IQueue queue, 
 	IStatusRepository<TKey> statusRepository, 
 	ILogger<WorkflowQueue<TPayload, TKey>> logger) : BackgroundService 	
-	where TKey : struct	
+	where TKey : notnull	
 {
 	protected readonly IQueue Queue = queue;
 	protected readonly IStatusRepository<TKey> StatusRepository = statusRepository;
