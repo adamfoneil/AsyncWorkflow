@@ -2,6 +2,7 @@
 
 public interface IQueue
 {	
-	Task<Guid> EnqueueAsync(string machineName, Message message, CancellationToken cancellationToken);
-	Task<Message?> DequeueAsync(string machineName, CancellationToken cancellationToken);
+	Task<string> EnqueueAsync(string machineName, Message message);
+	Task<Message?> DequeueAsync(string machineName, string handler, CancellationToken cancellationToken);
+	Task<Message> LogFailureAsync(string machineName, Message message, Exception exception, CancellationToken cancellationToken);
 }

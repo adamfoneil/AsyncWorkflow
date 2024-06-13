@@ -1,23 +1,20 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace AsyncWorkflow;
 
-public abstract class QueueService(IQueue queue, ILogger<QueueService> logger) : BackgroundService
+public abstract class QueueService<TPayload>(string handler, IQueue queue, ILogger<QueueService<TPayload>> logger) : BackgroundService
 {
 	protected readonly IQueue Queue = queue;
 
-	protected ILogger<QueueService> Logger { get; } = logger;
+	protected ILogger<QueueService<TPayload>> Logger { get; } = logger;
 
 	protected string MachineName { get; } = Environment.MachineName;
 
-	protected abstract Task ProcessMessageAsync(Message message, CancellationToken stoppingToken);
+	protected string HandlerName { get; } = handler;
 
-	protected virtual async Task ProcessMessageFailedAsync(Exception exception, Message message)
-	{
-		Logger.LogError(exception, "ProcessMessageFailed, messageId {Id}", message.Id);
-		await Task.CompletedTask;
-	}
+	protected abstract Task ProcessMessageAsync(Message message, TPayload payload, CancellationToken stoppingToken);
 
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
@@ -29,17 +26,19 @@ public abstract class QueueService(IQueue queue, ILogger<QueueService> logger) :
 
 	public async Task ProcessNextMessageAsync(CancellationToken stoppingToken)
 	{
-		var message = await Queue.DequeueAsync(MachineName, stoppingToken);
+		var message = await Queue.DequeueAsync(MachineName, HandlerName, stoppingToken);
 
 		if (message is not null)
 		{
+			var payload = JsonSerializer.Deserialize<TPayload>(message.Payload) ?? throw new Exception($"Couldn't deserialize payload from queue message Id {message.Id}");
 			try
 			{
-				await ProcessMessageAsync(message, stoppingToken);
+				await ProcessMessageAsync(message, payload, stoppingToken);
 			}
 			catch (Exception exc)
-			{				
-				await ProcessMessageFailedAsync(exc, message);
+			{
+				Logger.LogError(exc, "ProcessMessageFailed, messageId {Id}", message.Id);
+				await Queue.LogFailureAsync(MachineName, message, exc, stoppingToken);
 			}
 		}	
 	}
