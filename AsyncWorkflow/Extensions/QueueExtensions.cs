@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using AsyncWorkflow.Interfaces;
+using AsyncWorkflow.Records;
 
 namespace AsyncWorkflow.Extensions;
 
