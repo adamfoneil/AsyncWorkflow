@@ -6,15 +6,16 @@ using System.Text.Json;
 
 namespace AsyncWorkflow;
 
-public abstract class WorkflowQueue<TPayload, TStatus>(
+public abstract class WorkflowQueue<TPayload, TKey, TStatus>(
 	IQueue queue, 
-	IStatusRepository<TStatus> statusRepository, 
-	ILogger<WorkflowQueue<TPayload, TStatus>> logger) : BackgroundService 
+	IStatusRepository<TKey, TStatus> statusRepository, 
+	ILogger<WorkflowQueue<TPayload, TKey, TStatus>> logger) : BackgroundService 
 	where TStatus : Enum	
+	where TKey : struct	
 {
 	protected readonly IQueue Queue = queue;
-	protected readonly IStatusRepository<TStatus> StatusRepository = statusRepository;
-	protected ILogger<WorkflowQueue<TPayload, TStatus>> Logger { get; } = logger;
+	protected readonly IStatusRepository<TKey, TStatus> StatusRepository = statusRepository;
+	protected ILogger<WorkflowQueue<TPayload, TKey, TStatus>> Logger { get; } = logger;
 	protected string MachineName { get; } = Environment.MachineName;
 
 	protected abstract string HandlerName { get; }
@@ -29,11 +30,11 @@ public abstract class WorkflowQueue<TPayload, TStatus>(
 			{
 				var (status, payload) = await ProcessNextMessageAsync(stoppingToken);
 
-				if (status is not null && payload is ITrackedPayload trackedPayload)
+				if (status is not null && payload is ITrackedPayload<TKey> trackedPayload)
 				{
 					try
 					{
-						var history = new StatusLogEntry<TStatus>(trackedPayload.Key, HandlerName, status);
+						var history = new StatusLogEntry<TKey, TStatus>(trackedPayload.Key, HandlerName, status);
 						await StatusRepository.AppendHistoryAsync(history);
 					}
 					catch (Exception exc)

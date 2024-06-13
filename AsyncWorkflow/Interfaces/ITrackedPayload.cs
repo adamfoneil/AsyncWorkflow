@@ -1,6 +1,6 @@
 ﻿namespace AsyncWorkflow.Interfaces;
 
-public interface ITrackedPayload
+public interface ITrackedPayload<TKey> where TKey : struct
 {
-    string Key { get; }
+    TKey Key { get; }
 }
