@@ -3,9 +3,9 @@ using Microsoft.Extensions.Logging;
 
 namespace AsyncWorkflow;
 
-public abstract class QueueService(IQueueStore queueStore, ILogger<QueueService> logger) : BackgroundService
+public abstract class QueueService(IQueue queue, ILogger<QueueService> logger) : BackgroundService
 {
-	protected readonly IQueueStore Store = queueStore;
+	protected readonly IQueue Queue = queue;
 
 	protected ILogger<QueueService> Logger { get; } = logger;
 
@@ -13,7 +13,11 @@ public abstract class QueueService(IQueueStore queueStore, ILogger<QueueService>
 
 	protected abstract Task ProcessMessageAsync(Message message, CancellationToken stoppingToken);
 
-	protected virtual async Task OnProcessMessageFailedAsync(Message message) => await Task.CompletedTask;
+	protected virtual async Task ProcessMessageFailedAsync(Exception exception, Message message)
+	{
+		Logger.LogError(exception, "ProcessMessageFailed, messageId {Id}", message.Id);
+		await Task.CompletedTask;
+	}
 
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
@@ -25,7 +29,7 @@ public abstract class QueueService(IQueueStore queueStore, ILogger<QueueService>
 
 	public async Task ProcessNextMessageAsync(CancellationToken stoppingToken)
 	{
-		var message = await Store.DequeueAsync(MachineName, stoppingToken);
+		var message = await Queue.DequeueAsync(MachineName, stoppingToken);
 
 		if (message is not null)
 		{
@@ -34,9 +38,8 @@ public abstract class QueueService(IQueueStore queueStore, ILogger<QueueService>
 				await ProcessMessageAsync(message, stoppingToken);
 			}
 			catch (Exception exc)
-			{
-				Logger.LogError(exc, "Error in DoWorkAsync, messageId {Id}", message.Id);
-				await OnProcessMessageFailedAsync(message);
+			{				
+				await ProcessMessageFailedAsync(exc, message);
 			}
 		}	
 	}
