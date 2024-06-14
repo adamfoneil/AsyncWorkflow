@@ -8,9 +8,9 @@ public static class DbConnectionExtensions
 	/// <summary>
 	/// gets the next TMessage from a specified database table, ensuring that concurrent readers don't get the same row
 	/// </summary>
-	public static async Task<TMessage?> DequeueAsync<TMessage>(this IDbConnection connection, string tableName, string? criteria = null, object? parameters = null)
+	public static async Task<TMessage?> DequeueAsync<TMessage>(this IDbConnection connection, string tableName, string? criteria = null, object? parameters = null, string? outputExpression = "[deleted].*")
 	{
-		string sql = $"DELETE TOP (1) FROM {tableName} WITH (ROWLOCK, READPAST) OUTPUT [deleted].*";
+		string sql = $"DELETE TOP (1) FROM {tableName} WITH (ROWLOCK, READPAST) OUTPUT {outputExpression}";
 		if (!string.IsNullOrEmpty(criteria)) sql += $" WHERE {criteria}";
 
 		TMessage message = await connection.QuerySingleOrDefaultAsync<TMessage>(sql, parameters);

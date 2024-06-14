@@ -18,6 +18,10 @@ internal class DbTable(QueueSqlOptions.ObjectName objectName, Dictionary<string,
 		}
 	}
 
+	public virtual string OutputDeletedColumns => "[deleted].*";
+
+	public IEnumerable<string> Columns => _columnDefinitions.Keys;
+
 	private async Task<bool> TableExistsAsync(IDbConnection connection) =>
 		await connection.QuerySingleOrDefaultAsync<int>(
 			"SELECT 1 FROM [sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", 
