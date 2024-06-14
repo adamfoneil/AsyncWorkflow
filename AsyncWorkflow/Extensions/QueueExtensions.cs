@@ -10,6 +10,7 @@ public static class QueueExtensions
     {
         var json = JsonSerializer.Serialize(payload);
         var message = new Message(handler, json, userName);
-        return await queue.EnqueueAsync(machineName, message);
+        await queue.EnqueueAsync(machineName, message);
+        return message.Id;
     }
 }

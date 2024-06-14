@@ -17,7 +17,7 @@ public static class TrackingRepositoryExtensions
 			.First());
 	}
 
-	public static async Task<Dictionary<string, string>> GetLatestStatusesAsync<TKey, TStatus>(
+	public static async Task<Dictionary<string, string>> GetLatestStatusesAsync<TKey>(
 		this IStatusRepository<TKey> repository, TKey key) where TKey : struct
 	{
 		var latest = await GetLatestAsync(repository, key);
