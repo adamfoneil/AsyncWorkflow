@@ -11,7 +11,7 @@ public class DbObjects(IOptions<QueueSqlOptions> options)
 	{
 		["Id"] = "bigint IDENTITY(1,1) PRIMARY KEY",
 		["MessageId"] = "nvarchar(36) NOT NULL", // gets aliased as Message.Id
-		["Timestamp"] = "datetime2 NOT NULL",
+		["Timestamp"] = "datetime NOT NULL",
 		["MachineName"] = "nvarchar(100) NOT NULL",
 		["Handler"] = "nvarchar(100) NOT NULL",
 		["Payload"] = "nvarchar(max) NULL"
@@ -21,7 +21,7 @@ public class DbObjects(IOptions<QueueSqlOptions> options)
 	{
 		["Id"] = "bigint IDENTITY(1,1) PRIMARY KEY",
 		["MessageId"] = "nvarchar(36) NOT NULL",
-		["Timestamp"] = "datetime2 NOT NULL",
+		["Timestamp"] = "datetime NOT NULL",
 		["MachineName"] = "nvarchar(100) NOT NULL",
 		["Handler"] = "nvarchar(100) NOT NULL",
 		["Payload"] = "nvarchar(max) NULL",

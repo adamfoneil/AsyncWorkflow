@@ -40,7 +40,7 @@ public class Queue(string connectionString, DbObjects dbObjects) : IQueue
 				[MessageId], [Timestamp], [MachineName], [Handler], [Payload]
 			) VALUES (
 				@id, @timestamp, @machineName, @handler, @payload
-			)", new { message.Id, message.Timestamp, machineName, message.Handler, message.Payload });
+			)", new { message.Id, Timestamp = DateTime.UtcNow, machineName, message.Handler, message.Payload });
 	}		
 
 	public Task LogFailureAsync(string machineName, Message message, Exception exception, CancellationToken cancellationToken)
