@@ -4,6 +4,7 @@ namespace AsyncWorkflow.Interfaces;
 
 public interface IStatusRepository<TKey> where TKey : notnull
 {
-    Task AppendHistoryAsync(StatusLogEntry<TKey> history);
-    Task<IEnumerable<StatusLogEntry<TKey>>> GetHistoryAsync(TKey key);
+    Task SetAsync(StatusEntry<TKey> history);
+    Task<StatusEntry<TKey>> GetAsync(TKey key, string handler);
+	Task<IEnumerable<StatusEntry<TKey>>> GetAsync(TKey key);
 }

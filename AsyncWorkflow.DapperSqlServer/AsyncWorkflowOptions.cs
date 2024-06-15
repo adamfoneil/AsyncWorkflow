@@ -1,6 +1,6 @@
 ﻿namespace AsyncWorkflow.DapperSqlServer;
 
-public class QueueSqlOptions
+public class AsyncWorkflowOptions
 {
 	public ObjectName QueueTable { get; set; } = default!;
 	public ObjectName LogTable { get; set; } = default!;

@@ -1,13 +1,15 @@
 using AsyncWorkflow.DapperSqlServer;
 using AsyncWorkflow.Extensions;
 using AsyncWorkflow.Interfaces;
+using AsyncWorkflow.Records;
 using Microsoft.Extensions.Options;
+using NuGet.Frameworks;
 using System.Text.Json;
 
 namespace Testing;
 
 [TestClass]
-public class DapperQueue
+public class DapperWorkflow
 {
 	private const string DbName = "DapperQueue";
 
@@ -52,6 +54,23 @@ public class DapperQueue
 		Assert.AreEqual(ToNearestSecond(timestamp), ToNearestSecond(dequeuedMessage.Timestamp));
 	}
 
+	[TestMethod]
+	public async Task StatusDataAccess()
+	{
+		var repo = GetStatusRepository();
+		await repo.SetAsync(new StatusEntry<string>("2345abc", "Handler1", "Started"));
+
+		var status = await repo.GetAsync("2345abc", "Handler1");
+		Assert.IsTrue(status.Status.Equals("Started"));
+
+		await repo.SetAsync(new StatusEntry<string>("2345abc", "Handler1", "Completed"));
+		status = await repo.GetAsync("2345abc", "Handler1");
+		Assert.IsTrue(status.Status.Equals("Completed"));
+
+		var allStatuses = await repo.GetAsync("2345abc");
+		
+	}
+
 	/// <summary>
 	/// Truncate milliseconds and ticks to nearest second for more reliable Timestamp comparison
 	/// </summary>
@@ -69,13 +88,23 @@ public class DapperQueue
 		return new Queue(connectionString, dbObjects);
 	}
 
-	private static IOptions<QueueSqlOptions> GetOptions()
+	private static StatusRepository<string> GetStatusRepository()
 	{
-		return Options.Create(new QueueSqlOptions
+		var options = GetOptions();
+		var connectionString = LocalDb.GetConnectionString(DbName);
+		var dbObjects = new DbObjects(options);
+		dbObjects.EnsureExists(connectionString);
+
+		return new StatusRepository<string>(connectionString, dbObjects);
+	}
+
+	private static IOptions<AsyncWorkflowOptions> GetOptions()
+	{
+		return Options.Create(new AsyncWorkflowOptions
 		{
-			QueueTable = new QueueSqlOptions.ObjectName("worker", "Queue"),
-			LogTable = new QueueSqlOptions.ObjectName("worker", "Error"),
-			StatusTable = new QueueSqlOptions.ObjectName("worker", "Status")
+			QueueTable = new AsyncWorkflowOptions.ObjectName("worker", "Queue"),
+			LogTable = new AsyncWorkflowOptions.ObjectName("worker", "Error"),
+			StatusTable = new AsyncWorkflowOptions.ObjectName("worker", "Status")
 		});
 	}
 }

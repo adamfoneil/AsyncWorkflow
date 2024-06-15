@@ -1,5 +1,7 @@
 ﻿using AsyncWorkflow.Interfaces;
 using AsyncWorkflow.Records;
+using Dapper;
+using Microsoft.Data.SqlClient;
 
 namespace AsyncWorkflow.DapperSqlServer;
 
@@ -8,13 +10,62 @@ public class StatusRepository<TKey>(string connectionString, DbObjects dbObjects
 	private readonly string _connectionString = connectionString;
 	private readonly DbObjects _dbObjects = dbObjects;
 
-	public Task AppendHistoryAsync(StatusLogEntry<TKey> history)
+	public async Task SetAsync(StatusEntry<TKey> history)
 	{
-		throw new NotImplementedException();
+		using var cn = new SqlConnection(_connectionString);
+		await SetAsync(cn, history);
 	}
 
-	public Task<IEnumerable<StatusLogEntry<TKey>>> GetHistoryAsync(TKey key)
-	{
-		throw new NotImplementedException();
+	public async Task SetAsync(SqlConnection connection, StatusEntry<TKey> status)
+	{		
+		await connection.ExecuteAsync(
+			$@"MERGE INTO {_dbObjects.StatusTable} AS [target]
+			USING (
+				SELECT @key AS [Key], @handler AS [Handler], @status AS [Status], @timestamp AS [Timestamp]
+			) AS [source]
+			ON [target].[Key] = [source].[Key] AND [target].[Handler] = [source].[Handler]
+			WHEN MATCHED THEN
+				UPDATE SET [target].[Status]=[source].[Status], [target].[Timestamp]=[source].[Timestamp]
+			WHEN NOT MATCHED THEN
+				INSERT ([Key], [Handler], [Status], [Timestamp])
+				VALUES ([source].[Key], [source].[Handler], [source].[Status], [source].[Timestamp]);", 
+			new { status.Key, status.Handler, status.Status, Timestamp = status.Timestamp ?? DateTime.UtcNow });
 	}
+
+	public async Task<IEnumerable<StatusEntry<TKey>>> GetAsync(TKey key)
+	{
+		using var cn = new SqlConnection(_connectionString);
+		return await GetAsync(cn, key);
+	}
+
+	public async Task<IEnumerable<StatusEntry<TKey>>> GetAsync(SqlConnection connection, TKey key)
+	{
+		var results = await connection.QueryAsync<StatusEntryInternal<TKey>>(
+			$@"SELECT * FROM {_dbObjects.StatusTable} WHERE [Key]=@key", new { key });
+
+		return results.Select(row => new StatusEntry<TKey>(row.Key, row.Handler, row.Status, row.Timestamp));
+	}		
+
+	public async Task<StatusEntry<TKey>> GetAsync(TKey key, string handler)
+	{
+		using var cn = new SqlConnection(_connectionString);
+		return await GetAsync(cn, key, handler);
+	}
+
+	public async Task<StatusEntry<TKey>> GetAsync(SqlConnection connection, TKey key, string handler)
+	{
+		var result = await connection.QuerySingleOrDefaultAsync<StatusEntryInternal<TKey>>(
+			$@"SELECT * FROM {_dbObjects.StatusTable} WHERE [Key]=@key AND [Handler]=@handler",
+			new { key, handler });
+
+		return new(result.Key, result.Handler, result.Status, result.Timestamp);
+	}		
+}
+
+internal class StatusEntryInternal<TKey>
+{
+	public TKey Key { get; set; } = default!;
+	public string Handler { get; set; } = null!;
+	public string Status { get; set; } = null!;
+	public DateTime Timestamp { get; set; }
 }

@@ -4,11 +4,11 @@ using System.Data;
 namespace AsyncWorkflow.DapperSqlServer;
 
 public class DbTable(
-	QueueSqlOptions.ObjectName objectName, 
+	AsyncWorkflowOptions.ObjectName objectName, 
 	Dictionary<string, string> columnDefinitions, 
 	IEnumerable<string>? constraints = null)
 {
-	private readonly QueueSqlOptions.ObjectName _objectName = objectName;
+	private readonly AsyncWorkflowOptions.ObjectName _objectName = objectName;
 	private readonly Dictionary<string, string> _columnDefinitions = columnDefinitions;
 	private readonly IEnumerable<string> _constraints = constraints ?? [];
 

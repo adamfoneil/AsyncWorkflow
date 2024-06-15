@@ -3,9 +3,9 @@ using Microsoft.Extensions.Options;
 
 namespace AsyncWorkflow.DapperSqlServer;
 
-public class DbObjects(IOptions<QueueSqlOptions> options)
+public class DbObjects(IOptions<AsyncWorkflowOptions> options)
 {
-	private readonly QueueSqlOptions _options = options.Value;
+	private readonly AsyncWorkflowOptions _options = options.Value;
 
 	public DbTable QueueTable => new(_options.QueueTable, new()
 	{

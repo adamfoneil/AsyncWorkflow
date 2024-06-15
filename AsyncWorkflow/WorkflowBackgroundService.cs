@@ -32,9 +32,8 @@ public abstract class WorkflowBackgroundService<TPayload, TKey>(
 				if (status is not null && payload is ITrackedPayload<TKey> trackedPayload)
 				{
 					try
-					{
-						var history = new StatusLogEntry<TKey>(trackedPayload.Key, HandlerName, status);
-						await StatusRepository.AppendHistoryAsync(history);
+					{						
+						await StatusRepository.SetAsync(new StatusEntry<TKey>(trackedPayload.Key, HandlerName, status));
 					}
 					catch (Exception exc)
 					{
@@ -49,7 +48,7 @@ public abstract class WorkflowBackgroundService<TPayload, TKey>(
 		}
 	}
 
-	public async Task<(string?, TPayload)> ProcessNextMessageAsync(CancellationToken stoppingToken)
+	public async Task<(string? Status, TPayload Payload)> ProcessNextMessageAsync(CancellationToken stoppingToken)
 	{
 		try
 		{
