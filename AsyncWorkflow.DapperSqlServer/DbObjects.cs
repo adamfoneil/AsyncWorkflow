@@ -3,9 +3,10 @@ using Microsoft.Extensions.Options;
 
 namespace AsyncWorkflow.DapperSqlServer;
 
-public class DbObjects(IOptions<AsyncWorkflowOptions> options)
+public class DbObjects(string connectionString, IOptions<AsyncWorkflowOptions> options)
 {
 	private readonly AsyncWorkflowOptions _options = options.Value;
+	private readonly string _connectionString = connectionString;
 
 	public DbTable QueueTable => new(_options.QueueTable, new()
 	{
@@ -41,9 +42,9 @@ public class DbObjects(IOptions<AsyncWorkflowOptions> options)
 		$"CONSTRAINT [U_{_options.StatusTable.Schema}{_options.StatusTable.Name}_KeyHandler] UNIQUE ([Key], [Handler])"
 	]);
 
-	public void EnsureExists(string connectionString)
+	public void EnsureExists()
 	{
-		using var connection = new SqlConnection(connectionString);
+		using var connection = new SqlConnection(_connectionString);
 		QueueTable.EnsureExists(connection);
 		LogTable.EnsureExists(connection);
 		StatusTable.EnsureExists(connection);

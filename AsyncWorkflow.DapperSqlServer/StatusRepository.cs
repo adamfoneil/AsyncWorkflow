@@ -59,7 +59,13 @@ public class StatusRepository<TKey>(string connectionString, DbObjects dbObjects
 			new { key, handler });
 
 		return new(result.Key, result.Handler, result.Status, result.Timestamp);
-	}		
+	}
+
+	public async Task<bool> All(TKey key, string status, params string[] handlers)
+	{
+		var statuses = (await GetAsync(key)).ToDictionary(row => row.Handler, row => row.Status);
+		return handlers.All(handler => statuses.TryGetValue(handler, out var recordedStatus) && status == recordedStatus);
+	}
 }
 
 internal class StatusEntryInternal<TKey>

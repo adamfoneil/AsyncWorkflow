@@ -13,6 +13,9 @@ public class Step1B(IQueue queue, IStatusRepository<string> statusRepository, IL
 	{
 		var duration = Random.Shared.Next(3, 7) * 1000;
 		await Task.Delay(duration, stoppingToken);
-		return "Complete";
+		return Step2.CompletedStatus;
 	}
+
+	protected override async Task OnCompleted(string status, Document payload, CancellationToken stoppingToken) =>
+		await Step2.StartWhenReady(Queue, Status, payload);
 }

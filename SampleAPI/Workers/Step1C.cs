@@ -1,6 +1,7 @@
 ﻿using AsyncWorkflow.Records;
 using AsyncWorkflow;
 using AsyncWorkflow.Interfaces;
+using AsyncWorkflow.Extensions;
 using SampleAPI.Models;
 
 namespace SampleAPI.Workers;
@@ -13,6 +14,9 @@ public class Step1C(IQueue queue, IStatusRepository<string> statusRepository, IL
 	{
 		var duration = Random.Shared.Next(4, 8) * 1000;
 		await Task.Delay(duration, stoppingToken);
-		return "Complete";
+		return Step2.CompletedStatus;
 	}
+
+	protected override async Task OnCompleted(string status, Document payload, CancellationToken stoppingToken) =>
+		await Step2.StartWhenReady(Queue, Status, payload);
 }

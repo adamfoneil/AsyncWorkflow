@@ -1,6 +1,9 @@
 @SampleAPI_HostAddress = http://localhost:5280
 
-GET {{SampleAPI_HostAddress}}/weatherforecast/
+POST {{SampleAPI_HostAddress}}/process/
 Accept: application/json
+{
+	"Filename":"sample.txt"
+}
 
 ###

@@ -40,7 +40,7 @@ public class DapperWorkflow
 		var machineName = Environment.MachineName;
 
 		var enqueuedPayload = new Payload(232898, "whatever", "nobody.inparticular");
-		var (msgId, timestamp) = await queue.EnqueueAsync(machineName, DefaultHandler, enqueuedPayload);
+		var (msgId, timestamp) = await queue.EnqueuePayloadAsync(machineName, DefaultHandler, enqueuedPayload);
 
 		var dequeuedMessage = await queue.DequeueAsync(machineName, DefaultHandler, CancellationToken.None);
 		var dequeuedPayload = JsonSerializer.Deserialize<Payload>(dequeuedMessage!.Payload);
@@ -82,8 +82,8 @@ public class DapperWorkflow
 		var options = GetOptions();
 
 		var connectionString = LocalDb.GetConnectionString(DbName);
-		var dbObjects = new DbObjects(options);
-		dbObjects.EnsureExists(connectionString);
+		var dbObjects = new DbObjects(connectionString, options);
+		dbObjects.EnsureExists();
 
 		return new Queue(connectionString, dbObjects);
 	}
@@ -92,8 +92,8 @@ public class DapperWorkflow
 	{
 		var options = GetOptions();
 		var connectionString = LocalDb.GetConnectionString(DbName);
-		var dbObjects = new DbObjects(options);
-		dbObjects.EnsureExists(connectionString);
+		var dbObjects = new DbObjects(connectionString, options);
+		dbObjects.EnsureExists();
 
 		return new StatusRepository<string>(connectionString, dbObjects);
 	}
