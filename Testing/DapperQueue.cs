@@ -36,8 +36,8 @@ namespace Testing
 			const string DefaultHandler = "defaultHandler";
 			var machineName = Environment.MachineName;
 
-			var enqueuedMessage = new { Id = 1, Name = "Test", UserName = "nobody.inparticular" };
-			var (msgId, timestamp) = await queue.EnqueueAsync(machineName, DefaultHandler, enqueuedMessage);
+			var payload = new { Id = 1, Name = "Test", UserName = "nobody.inparticular" };
+			var (msgId, timestamp) = await queue.EnqueueAsync(machineName, DefaultHandler, payload);
 
 			var dequeuedMessage = await queue.DequeueAsync(machineName, DefaultHandler, CancellationToken.None);
 
