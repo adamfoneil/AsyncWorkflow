@@ -17,13 +17,13 @@ public class Queue(string connectionString, DbObjects dbObjects) : IQueue
 
 		var result = await cn.DequeueAsync<MessageInternal>(
 			_dbObjects.QueueTable.FormatedName, "[MachineName]=@machineName AND [Handler]=@handler", 
-			new { machineName, handler }, _dbObjects.QueueTable.OutputDeletedColumns);
+			new { machineName, handler });
 
 		if (result is not null)
 		{
 			return new Message(result.Handler, result.Payload) 
 			{ 
-				Id = result.Id, 
+				Id = result.MessageId, 
 				Timestamp = result.Timestamp 
 			};
 		}
@@ -51,7 +51,7 @@ public class Queue(string connectionString, DbObjects dbObjects) : IQueue
 
 internal class MessageInternal
 {
-	public string Id { get; set; } = null!;
+	public string MessageId { get; set; } = null!;
 	public DateTime Timestamp { get; set; }
 	public string Handler { get; set; } = null!;
 	public string Payload { get; set; } = null!;

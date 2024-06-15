@@ -7,7 +7,7 @@ public class DbObjects(IOptions<QueueSqlOptions> options)
 {
 	private readonly QueueSqlOptions _options = options.Value;
 
-	public QueueTable QueueTable => new(_options.QueueTable, new()
+	public DbTable QueueTable => new(_options.QueueTable, new()
 	{
 		["Id"] = "bigint IDENTITY(1,1) PRIMARY KEY",
 		["MessageId"] = "nvarchar(36) NOT NULL", // gets aliased as Message.Id
@@ -35,15 +35,4 @@ public class DbObjects(IOptions<QueueSqlOptions> options)
 		QueueTable.EnsureExists(connection);
 		LogTable.EnsureExists(connection);
 	}
-}
-
-public class QueueTable(
-	QueueSqlOptions.ObjectName objectName,
-	Dictionary<string, string> columnDefinitions) : DbTable(objectName, columnDefinitions)
-{
-	public override string OutputDeletedColumns => string.Join(", ", DeletedColumns);
-
-	private IEnumerable<string> DeletedColumns => Columns
-		.Except(["Id"])
-		.Select(col => (col == "MessageId") ? $"[deleted].[MessageId] AS [Id]" : $"[deleted].[{col}]");
 }
