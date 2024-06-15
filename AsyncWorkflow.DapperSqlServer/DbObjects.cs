@@ -27,12 +27,25 @@ public class DbObjects(IOptions<QueueSqlOptions> options)
 		["Payload"] = "nvarchar(max) NULL",
 		["Exception"] = "nvarchar(100) NULL",
 		["StackTrace"] = "nvarchar(max) NULL"
-	});	
+	});
+
+	public DbTable StatusTable => new(_options.StatusTable, new()
+	{
+		["Id"] = "bigint IDENTITY(1,1) PRIMARY KEY",
+		["Key"] = $"{_options.StatusTableKeyColumnType} NOT NULL",
+		["Handler"] = "nvarchar(100) NOT NULL",
+		["Status"] = "nvarchar(100) NOT NULL",
+		["Timestamp"] = "datetime NOT NULL",		
+	},
+	[
+		$"CONSTRAINT [U_{_options.StatusTable.Schema}{_options.StatusTable.Name}_KeyHandler] UNIQUE ([Key], [Handler])"
+	]);
 
 	public void EnsureExists(string connectionString)
 	{
 		using var connection = new SqlConnection(connectionString);
 		QueueTable.EnsureExists(connection);
 		LogTable.EnsureExists(connection);
+		StatusTable.EnsureExists(connection);
 	}
 }

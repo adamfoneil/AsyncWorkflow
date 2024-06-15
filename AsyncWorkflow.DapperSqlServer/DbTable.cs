@@ -3,10 +3,14 @@ using System.Data;
 
 namespace AsyncWorkflow.DapperSqlServer;
 
-public class DbTable(QueueSqlOptions.ObjectName objectName, Dictionary<string, string> columnDefinitions)
+public class DbTable(
+	QueueSqlOptions.ObjectName objectName, 
+	Dictionary<string, string> columnDefinitions, 
+	IEnumerable<string>? constraints = null)
 {
 	private readonly QueueSqlOptions.ObjectName _objectName = objectName;
 	private readonly Dictionary<string, string> _columnDefinitions = columnDefinitions;
+	private readonly IEnumerable<string> _constraints = constraints ?? [];
 
 	public string FormatedName => $"[{_objectName.Schema}].[{_objectName.Name}]";
 
@@ -31,5 +35,6 @@ public class DbTable(QueueSqlOptions.ObjectName objectName, Dictionary<string, s
 			"SELECT 1 FROM [sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", 
 			new { _objectName.Schema, _objectName.Name }) == 1;
 	
-	public string CreateScript() => $"CREATE TABLE {FormatedName} (\r\n{string.Join(",\r\n", _columnDefinitions.Select(kvp => $"[{kvp.Key}] {kvp.Value}"))}\r\n);";	
+	public string CreateScript() => 
+		$"CREATE TABLE {FormatedName} (\r\n{string.Join(",\r\n", _columnDefinitions.Select(kvp => $"[{kvp.Key}] {kvp.Value}").Concat(_constraints))}\r\n);";	
 }

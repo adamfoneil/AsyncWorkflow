@@ -74,7 +74,8 @@ public class DapperQueue
 		return Options.Create(new QueueSqlOptions
 		{
 			QueueTable = new QueueSqlOptions.ObjectName("worker", "Queue"),
-			LogTable = new QueueSqlOptions.ObjectName("worker", "Error")
+			LogTable = new QueueSqlOptions.ObjectName("worker", "Error"),
+			StatusTable = new QueueSqlOptions.ObjectName("worker", "Status")
 		});
 	}
 }

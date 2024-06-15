@@ -4,6 +4,8 @@ public class QueueSqlOptions
 {
 	public ObjectName QueueTable { get; set; } = default!;
 	public ObjectName LogTable { get; set; } = default!;
+	public ObjectName StatusTable { get; set; } = default!;
+	public string StatusTableKeyColumnType { get; set; } = "nvarchar(36)";
 
 	public record ObjectName(string Schema, string Name);	
 }
