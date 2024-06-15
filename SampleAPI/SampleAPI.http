@@ -4,7 +4,7 @@ POST {{SampleAPI_HostAddress}}/process/
 Accept: application/json
 Content-Type: application/json
 {
-	"Filename":"sample1.txt"
+	"Filename":"yet_another_file.txt"
 }
 
 ###

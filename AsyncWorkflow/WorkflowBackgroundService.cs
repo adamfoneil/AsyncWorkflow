@@ -2,6 +2,7 @@
 using AsyncWorkflow.Records;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace AsyncWorkflow;
@@ -28,8 +29,10 @@ public abstract class WorkflowBackgroundService<TPayload, TKey>(
 		while (!stoppingToken.IsCancellationRequested)
 		{
 			try
-			{				
+			{
+				var sw = Stopwatch.StartNew();
 				var (status, payload) = await ProcessNextMessageAsync(stoppingToken);
+				sw.Stop();
 
 				if (status is not null)
 				{
@@ -37,7 +40,7 @@ public abstract class WorkflowBackgroundService<TPayload, TKey>(
 					{
 						try
 						{
-							await Status.SetAsync(new StatusEntry<TKey>(trackedPayload.Key, HandlerName, status));
+							await Status.SetAsync(new StatusEntry<TKey>(trackedPayload.Key, HandlerName, status, sw.ElapsedMilliseconds));
 						}
 						catch (Exception exc)
 						{

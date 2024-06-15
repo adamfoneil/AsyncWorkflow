@@ -3,7 +3,6 @@ using AsyncWorkflow.Extensions;
 using AsyncWorkflow.Interfaces;
 using AsyncWorkflow.Records;
 using Microsoft.Extensions.Options;
-using NuGet.Frameworks;
 using System.Text.Json;
 
 namespace Testing;
@@ -22,7 +21,7 @@ public class DapperWorkflow
 	[ClassCleanup]
 	public static void Cleanup()
 	{
-		//LocalDb.DropDatabase(DbName);
+		LocalDb.DropDatabase(DbName);
 	}
 
 	[TestMethod]

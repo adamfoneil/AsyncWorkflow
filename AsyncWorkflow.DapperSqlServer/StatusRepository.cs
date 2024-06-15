@@ -21,15 +21,15 @@ public class StatusRepository<TKey>(string connectionString, DbObjects dbObjects
 		await connection.ExecuteAsync(
 			$@"MERGE INTO {_dbObjects.StatusTable} AS [target]
 			USING (
-				SELECT @key AS [Key], @handler AS [Handler], @status AS [Status], @timestamp AS [Timestamp]
+				SELECT @key AS [Key], @handler AS [Handler], @status AS [Status], @duration AS [Duration], @timestamp AS [Timestamp]
 			) AS [source]
 			ON [target].[Key] = [source].[Key] AND [target].[Handler] = [source].[Handler]
 			WHEN MATCHED THEN
-				UPDATE SET [target].[Status]=[source].[Status], [target].[Timestamp]=[source].[Timestamp]
+				UPDATE SET [target].[Status]=[source].[Status], [target].[Timestamp]=[source].[Timestamp], [target].[Duration]=[source].[Duration]
 			WHEN NOT MATCHED THEN
-				INSERT ([Key], [Handler], [Status], [Timestamp])
-				VALUES ([source].[Key], [source].[Handler], [source].[Status], [source].[Timestamp]);", 
-			new { status.Key, status.Handler, status.Status, Timestamp = status.Timestamp ?? DateTime.UtcNow });
+				INSERT ([Key], [Handler], [Status], [Timestamp], [Duration])
+				VALUES ([source].[Key], [source].[Handler], [source].[Status], [source].[Timestamp], [source].[Duration]);", 
+			new { status.Key, status.Handler, status.Status, status.Duration, Timestamp = status.Timestamp ?? DateTime.UtcNow });
 	}
 
 	public async Task<IEnumerable<StatusEntry<TKey>>> GetAsync(TKey key)
@@ -43,7 +43,7 @@ public class StatusRepository<TKey>(string connectionString, DbObjects dbObjects
 		var results = await connection.QueryAsync<StatusEntryInternal<TKey>>(
 			$@"SELECT * FROM {_dbObjects.StatusTable} WHERE [Key]=@key", new { key });
 
-		return results.Select(row => new StatusEntry<TKey>(row.Key, row.Handler, row.Status, row.Timestamp));
+		return results.Select(row => new StatusEntry<TKey>(row.Key, row.Handler, row.Status, row.Duration, row.Timestamp));
 	}		
 
 	public async Task<StatusEntry<TKey>> GetAsync(TKey key, string handler)
@@ -58,7 +58,7 @@ public class StatusRepository<TKey>(string connectionString, DbObjects dbObjects
 			$@"SELECT * FROM {_dbObjects.StatusTable} WHERE [Key]=@key AND [Handler]=@handler",
 			new { key, handler });
 
-		return new(result.Key, result.Handler, result.Status, result.Timestamp);
+		return new(result.Key, result.Handler, result.Status, result.Duration, result.Timestamp);
 	}
 
 	public async Task<bool> All(TKey key, string status, params string[] handlers)
@@ -74,4 +74,5 @@ internal class StatusEntryInternal<TKey>
 	public string Handler { get; set; } = null!;
 	public string Status { get; set; } = null!;
 	public DateTime Timestamp { get; set; }
+	public long? Duration { get; set; }
 }

@@ -36,7 +36,8 @@ public class DbObjects(string connectionString, IOptions<AsyncWorkflowOptions> o
 		["Key"] = $"{_options.StatusTableKeyColumnType} NOT NULL",
 		["Handler"] = "nvarchar(100) NOT NULL",
 		["Status"] = "nvarchar(100) NOT NULL",
-		["Timestamp"] = "datetime NOT NULL",		
+		["Timestamp"] = "datetime NOT NULL",
+		["Duration"] = "bigint NULL"
 	},
 	[
 		$"CONSTRAINT [U_{_options.StatusTable.Schema}{_options.StatusTable.Name}_KeyHandler] UNIQUE ([Key], [Handler])"
