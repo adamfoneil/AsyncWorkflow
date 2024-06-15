@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncWorkflow", "AsyncWorkf
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncWorkflow.DapperSqlServer", "AsyncWorkflow.DapperSqlServer\AsyncWorkflow.DapperSqlServer.csproj", "{9DB6296A-62DB-4546-8E61-245AB938DD03}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "Testing\Testing.csproj", "{9B217937-3B3F-4963-A83B-D0E88591D607}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{9DB6296A-62DB-4546-8E61-245AB938DD03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DB6296A-62DB-4546-8E61-245AB938DD03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DB6296A-62DB-4546-8E61-245AB938DD03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B217937-3B3F-4963-A83B-D0E88591D607}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B217937-3B3F-4963-A83B-D0E88591D607}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B217937-3B3F-4963-A83B-D0E88591D607}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B217937-3B3F-4963-A83B-D0E88591D607}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

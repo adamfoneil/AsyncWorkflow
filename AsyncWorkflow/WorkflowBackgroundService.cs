@@ -6,15 +6,15 @@ using System.Text.Json;
 
 namespace AsyncWorkflow;
 
-public abstract class WorkflowQueue<TPayload, TKey>(
+public abstract class WorkflowBackgroundService<TPayload, TKey>(
 	IQueue queue, 
 	IStatusRepository<TKey> statusRepository, 
-	ILogger<WorkflowQueue<TPayload, TKey>> logger) : BackgroundService 	
+	ILogger<WorkflowBackgroundService<TPayload, TKey>> logger) : BackgroundService 	
 	where TKey : notnull	
 {
 	protected readonly IQueue Queue = queue;
 	protected readonly IStatusRepository<TKey> StatusRepository = statusRepository;
-	protected ILogger<WorkflowQueue<TPayload, TKey>> Logger { get; } = logger;
+	protected ILogger<WorkflowBackgroundService<TPayload, TKey>> Logger { get; } = logger;
 	protected string MachineName { get; } = Environment.MachineName;
 
 	protected abstract string HandlerName { get; }
