@@ -2,9 +2,9 @@
 
 POST {{SampleAPI_HostAddress}}/process/
 Accept: application/json
-
+Content-Type: application/json
 {
-	"Filename":"sample.txt"
+	"Filename":"sample1.txt"
 }
 
 ###
