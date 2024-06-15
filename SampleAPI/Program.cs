@@ -1,7 +1,6 @@
 using AsyncWorkflow.DapperSqlServer;
-using AsyncWorkflow.Interfaces;
 using AsyncWorkflow.Extensions;
-using Microsoft.AspNetCore.Mvc;
+using AsyncWorkflow.Interfaces;
 using SampleAPI.Models;
 using SampleAPI.Workers;
 
@@ -22,7 +21,7 @@ var app = builder.Build();
 app.UseHttpsRedirection();
 app.UseDapperSqlServerAsyncWorkflow();
 
-app.MapPost("/process", async (IQueue queue, [FromBody]Document document) =>
+app.MapPost("/process", async (IQueue queue, Document document) =>
 {
 	await queue.EnqueuePayloadAsync(Environment.MachineName, nameof(Step1A), document);
 	await queue.EnqueuePayloadAsync(Environment.MachineName, nameof(Step1B), document);

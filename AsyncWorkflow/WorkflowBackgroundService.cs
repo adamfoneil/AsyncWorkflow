@@ -81,6 +81,10 @@ public abstract class WorkflowBackgroundService<TPayload, TKey>(
 					Logger.LogError(exc, "ProcessNextMessageAsync failed after dequeue {@message}", message);
 					await Queue.LogFailureAsync(MachineName, message, exc, stoppingToken);
 				}
+				finally
+				{
+					Logger.LogDebug("Finished {HandlerName} of message {@message}", HandlerName, message);
+				}
 			}
 		}
 		catch (Exception exc)
