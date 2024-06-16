@@ -23,7 +23,11 @@ You have many options for a queue backing store and data access approach. Dapper
 
 # Sample API
 A very simple implementation is in the [SampleAPI](https://github.com/adamfoneil/AsyncWorkflow/tree/master/SampleAPI) project.
-- See [Program.cs](https://github.com/adamfoneil/AsyncWorkflow/tree/master/SampleAPI) to see how an API project would be configured
+- See [Program.cs](https://github.com/adamfoneil/AsyncWorkflow/tree/master/SampleAPI/Program.cs) to see how an API project would be configured
 - See [appsettings.json](https://github.com/adamfoneil/AsyncWorkflow/blob/master/SampleAPI/appsettings.json#L13) configuration
 - I added several dummy [workers](https://github.com/adamfoneil/AsyncWorkflow/tree/master/SampleAPI/Workers). All they do is delay a random number of seconds
 - You can test this by clicking "Debug" on the `/process` endpoint post in the [.http](https://github.com/adamfoneil/AsyncWorkflow/blob/master/SampleAPI/SampleAPI.http) file. This is simulating a file upload (although there's no actual content being uploaded -- it's just a file name being provided).
+- To make it so [Step2](https://github.com/adamfoneil/AsyncWorkflow/blob/master/SampleAPI/Workers/Step2.cs) runs when the 3 `Step1` processes complete, notice that I override the `OnCompleteAsync` method in the `Step1*` workers, [example](https://github.com/adamfoneil/AsyncWorkflow/blob/master/SampleAPI/Workers/Step1A.cs#L19). This is calling [Step2.StartWhenReady](https://github.com/adamfoneil/AsyncWorkflow/blob/master/SampleAPI/Workers/Step2.cs#L22), which is checking to see if all the `Step1` processes are in a "Completed" status before it initiates Step2.
+
+# Testing
+To test the inline SQL without needing to run actual workers, I did this here in [DapperWorkflow](https://github.com/adamfoneil/AsyncWorkflow/blob/master/Testing/DapperWorkflow.cs). This was to ensure that the tables created okay and could be queried without error.
