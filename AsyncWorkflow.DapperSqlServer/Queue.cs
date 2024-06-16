@@ -7,7 +7,7 @@ using Microsoft.Data.SqlClient;
 namespace AsyncWorkflow.DapperSqlServer;
 
 public class Queue(string connectionString, DbObjects dbObjects) : IQueue
-{		
+{
 	private readonly string _connectionString = connectionString;
 	private readonly DbObjects _dbObjects = dbObjects;
 
@@ -16,20 +16,20 @@ public class Queue(string connectionString, DbObjects dbObjects) : IQueue
 		using var cn = new SqlConnection(_connectionString);
 
 		var result = await cn.DequeueAsync<MessageInternal>(
-			_dbObjects.QueueTable.FormatedName, "[MachineName]=@machineName AND [Handler]=@handler", 
+			_dbObjects.QueueTable.FormatedName, "[MachineName]=@machineName AND [Handler]=@handler",
 			new { machineName, handler });
 
 		if (result is not null)
 		{
-			return new Message(result.Handler, result.Payload) 
-			{ 
-				Id = result.MessageId, 
-				Timestamp = result.Timestamp 
+			return new Message(result.Handler, result.Payload)
+			{
+				Id = result.MessageId,
+				Timestamp = result.Timestamp
 			};
 		}
 
 		return default;
-	}	
+	}
 
 	public async Task EnqueueAsync(string machineName, Message message)
 	{
@@ -41,7 +41,7 @@ public class Queue(string connectionString, DbObjects dbObjects) : IQueue
 			) VALUES (
 				@id, @timestamp, @machineName, @handler, @payload
 			)", new { message.Id, Timestamp = DateTime.UtcNow, machineName, message.Handler, message.Payload });
-	}		
+	}
 
 	public Task LogFailureAsync(string machineName, Message message, Exception exception, CancellationToken cancellationToken)
 	{

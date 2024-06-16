@@ -8,7 +8,7 @@ namespace AsyncWorkflow.DapperSqlServer;
 public static class ServiceExtensions
 {
 	public static void AddDapperSqlServerAsyncWorkflow(this IServiceCollection services, string connectionString)
-	{		
+	{
 		services.AddSingleton(services => new DbObjects(connectionString, services.GetRequiredService<IOptions<AsyncWorkflowOptions>>()));
 		services.AddSingleton<IStatusRepository<string>, StatusRepository<string>>(services => new StatusRepository<string>(connectionString, services.GetRequiredService<DbObjects>()));
 		services.AddSingleton<IQueue, Queue>(services => new Queue(connectionString, services.GetRequiredService<DbObjects>()));

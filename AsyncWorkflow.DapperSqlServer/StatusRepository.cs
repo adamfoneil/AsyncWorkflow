@@ -17,7 +17,7 @@ public class StatusRepository<TKey>(string connectionString, DbObjects dbObjects
 	}
 
 	public async Task SetAsync(SqlConnection connection, StatusEntry<TKey> status)
-	{		
+	{
 		await connection.ExecuteAsync(
 			$@"MERGE INTO {_dbObjects.StatusTable} AS [target]
 			USING (
@@ -28,7 +28,7 @@ public class StatusRepository<TKey>(string connectionString, DbObjects dbObjects
 				UPDATE SET [target].[Status]=[source].[Status], [target].[Timestamp]=[source].[Timestamp], [target].[Duration]=[source].[Duration]
 			WHEN NOT MATCHED THEN
 				INSERT ([Key], [Handler], [Status], [Timestamp], [Duration])
-				VALUES ([source].[Key], [source].[Handler], [source].[Status], [source].[Timestamp], [source].[Duration]);", 
+				VALUES ([source].[Key], [source].[Handler], [source].[Status], [source].[Timestamp], [source].[Duration]);",
 			new { status.Key, status.Handler, status.Status, status.Duration, Timestamp = status.Timestamp ?? DateTime.UtcNow });
 	}
 
@@ -44,7 +44,7 @@ public class StatusRepository<TKey>(string connectionString, DbObjects dbObjects
 			$@"SELECT * FROM {_dbObjects.StatusTable} WHERE [Key]=@key", new { key });
 
 		return results.Select(row => new StatusEntry<TKey>(row.Key, row.Handler, row.Status, row.Duration, row.Timestamp));
-	}		
+	}
 
 	public async Task<StatusEntry<TKey>> GetAsync(TKey key, string handler)
 	{

@@ -32,9 +32,9 @@ public class DapperWorkflow
 
 	[TestMethod]
 	public async Task QueueDataAccess()
-	{			
+	{
 		var queue = GetQueue();
-		
+
 		const string DefaultHandler = "defaultHandler";
 		var machineName = Environment.MachineName;
 
@@ -67,7 +67,7 @@ public class DapperWorkflow
 		Assert.IsTrue(status.Status.Equals("Completed"));
 
 		var allStatuses = await repo.GetAsync("2345abc");
-		
+
 	}
 
 	/// <summary>
@@ -109,6 +109,6 @@ public class DapperWorkflow
 }
 
 internal record Payload(int Id, string Description, string UserName) : ITrackedPayload<int>
-{	
+{
 	public int Key => Id;
 }

@@ -1,14 +1,14 @@
-﻿using AsyncWorkflow.Records;
-using AsyncWorkflow;
-using AsyncWorkflow.Interfaces;
-using SampleAPI.Models;
+﻿using AsyncWorkflow;
 using AsyncWorkflow.Extensions;
+using AsyncWorkflow.Interfaces;
+using AsyncWorkflow.Records;
+using SampleAPI.Models;
 
 namespace SampleAPI.Workers;
 
 public class Step2(IQueue queue, IStatusRepository<string> statusRepository, ILogger<WorkflowBackgroundService<Document, string>> logger) : WorkflowBackgroundService<Document, string>(queue, statusRepository, logger)
 {
-	protected override string HandlerName => nameof(Step2);	
+	protected override string HandlerName => nameof(Step2);
 
 	protected override async Task<string> ProcessMessageAsync(Message message, Document payload, CancellationToken stoppingToken)
 	{

@@ -1,7 +1,6 @@
-﻿using AsyncWorkflow.Records;
-using AsyncWorkflow;
+﻿using AsyncWorkflow;
 using AsyncWorkflow.Interfaces;
-using AsyncWorkflow.Extensions;
+using AsyncWorkflow.Records;
 using SampleAPI.Models;
 
 namespace SampleAPI.Workers;

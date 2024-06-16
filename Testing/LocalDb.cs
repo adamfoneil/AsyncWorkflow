@@ -13,11 +13,11 @@ internal static class LocalDb
 		SqlConnection result = new(GetConnectionString(databaseName));
 		result.Open();
 		return result;
-	}		
+	}
 
 	internal static void EnsureDatabaseExists(string databaseName)
 	{
-		using var cn = GetConnection("master");		
+		using var cn = GetConnection("master");
 		if (!DatabaseExists(cn, databaseName))
 		{
 			using var cmd = new SqlCommand($"CREATE DATABASE [{databaseName}]", cn);
@@ -45,6 +45,6 @@ internal static class LocalDb
 		param.Value = databaseName;
 		cmd.Parameters.Add(param);
 		var result = cmd.ExecuteScalar();
-		return result?.Equals(1) ?? false;		
+		return result?.Equals(1) ?? false;
 	}
 }

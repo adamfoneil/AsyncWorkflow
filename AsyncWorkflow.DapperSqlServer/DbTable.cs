@@ -4,8 +4,8 @@ using System.Data;
 namespace AsyncWorkflow.DapperSqlServer;
 
 public class DbTable(
-	AsyncWorkflowOptions.ObjectName objectName, 
-	Dictionary<string, string> columnDefinitions, 
+	AsyncWorkflowOptions.ObjectName objectName,
+	Dictionary<string, string> columnDefinitions,
 	IEnumerable<string>? constraints = null)
 {
 	private readonly AsyncWorkflowOptions.ObjectName _objectName = objectName;
@@ -15,7 +15,7 @@ public class DbTable(
 	public string FormatedName => $"[{_objectName.Schema}].[{_objectName.Name}]";
 
 	public override string ToString() => FormatedName;
-	
+
 	public void EnsureExists(IDbConnection connection)
 	{
 		if (!SchemaExists(connection)) connection.Execute($"CREATE SCHEMA [{_objectName.Schema}]");
@@ -24,7 +24,7 @@ public class DbTable(
 
 	private bool SchemaExists(IDbConnection connection) =>
 		connection.QuerySingleOrDefault<int>(
-			"SELECT 1 FROM [sys].[schemas] WHERE [name]=@name", new { name = _objectName.Schema }) == 1;	
+			"SELECT 1 FROM [sys].[schemas] WHERE [name]=@name", new { name = _objectName.Schema }) == 1;
 
 	public virtual string OutputDeletedColumns => "[deleted].*";
 
@@ -32,9 +32,9 @@ public class DbTable(
 
 	private bool TableExists(IDbConnection connection) =>
 		connection.QuerySingleOrDefault<int>(
-			"SELECT 1 FROM [sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name", 
+			"SELECT 1 FROM [sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name",
 			new { _objectName.Schema, _objectName.Name }) == 1;
-	
-	public string CreateScript() => 
-		$"CREATE TABLE {FormatedName} (\r\n{string.Join(",\r\n", _columnDefinitions.Select(kvp => $"[{kvp.Key}] {kvp.Value}").Concat(_constraints))}\r\n);";	
+
+	public string CreateScript() =>
+		$"CREATE TABLE {FormatedName} (\r\n{string.Join(",\r\n", _columnDefinitions.Select(kvp => $"[{kvp.Key}] {kvp.Value}").Concat(_constraints))}\r\n);";
 }

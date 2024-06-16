@@ -7,5 +7,5 @@ public class AsyncWorkflowOptions
 	public ObjectName StatusTable { get; set; } = default!;
 	public string StatusTableKeyColumnType { get; set; } = "nvarchar(36)";
 
-	public record ObjectName(string Schema, string Name);	
+	public record ObjectName(string Schema, string Name);
 }

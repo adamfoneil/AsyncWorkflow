@@ -4,7 +4,7 @@ namespace AsyncWorkflow.Interfaces;
 
 public interface IQueue
 {
-    Task EnqueueAsync(string machineName, Message message);
-    Task<Message?> DequeueAsync(string machineName, string handler, CancellationToken cancellationToken);
-    Task LogFailureAsync(string machineName, Message message, Exception exception, CancellationToken cancellationToken);
+	Task EnqueueAsync(string machineName, Message message);
+	Task<Message?> DequeueAsync(string machineName, string handler, CancellationToken cancellationToken);
+	Task LogFailureAsync(string machineName, Message message, Exception exception, CancellationToken cancellationToken);
 }

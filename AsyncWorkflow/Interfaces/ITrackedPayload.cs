@@ -2,5 +2,5 @@
 
 public interface ITrackedPayload<TKey> where TKey : notnull
 {
-    TKey Key { get; }
+	TKey Key { get; }
 }

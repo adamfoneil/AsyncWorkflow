@@ -8,10 +8,10 @@ using System.Text.Json;
 namespace AsyncWorkflow;
 
 public abstract class WorkflowBackgroundService<TPayload, TKey>(
-	IQueue queue, 
-	IStatusRepository<TKey> statusRepository, 
-	ILogger<WorkflowBackgroundService<TPayload, TKey>> logger) : BackgroundService 	
-	where TKey : notnull	
+	IQueue queue,
+	IStatusRepository<TKey> statusRepository,
+	ILogger<WorkflowBackgroundService<TPayload, TKey>> logger) : BackgroundService
+	where TKey : notnull
 {
 	protected readonly IQueue Queue = queue;
 	protected readonly IStatusRepository<TKey> Status = statusRepository;
@@ -61,7 +61,7 @@ public abstract class WorkflowBackgroundService<TPayload, TKey>(
 			catch (Exception exc)
 			{
 				Logger.LogError(exc, "ExecuteAsync failed");
-			}			
+			}
 		}
 	}
 
@@ -93,7 +93,7 @@ public abstract class WorkflowBackgroundService<TPayload, TKey>(
 		catch (Exception exc)
 		{
 			Logger.LogError(exc, "ProcessNextMessageAsync failed on dequeue");
-		}		
+		}
 
 		return default;
 	}

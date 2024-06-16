@@ -29,7 +29,7 @@ public static class DbConnectionExtensions
 			if (result is not null)
 			{
 				await task.Invoke(result);
-			}			
+			}
 		}
 	}
 }
