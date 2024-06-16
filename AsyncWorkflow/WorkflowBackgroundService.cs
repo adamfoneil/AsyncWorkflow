@@ -22,7 +22,7 @@ public abstract class WorkflowBackgroundService<TPayload, TKey>(
 
 	protected abstract Task<string> ProcessMessageAsync(Message message, TPayload payload, CancellationToken stoppingToken);
 
-	protected virtual Task OnCompleted(string status, TPayload payload, CancellationToken stoppingToken) => Task.CompletedTask;
+	protected virtual Task OnCompletedAsync(string status, TPayload payload, CancellationToken stoppingToken) => Task.CompletedTask;
 
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
@@ -50,7 +50,7 @@ public abstract class WorkflowBackgroundService<TPayload, TKey>(
 
 					try
 					{
-						await OnCompleted(status, payload, stoppingToken);
+						await OnCompletedAsync(status, payload, stoppingToken);
 					}
 					catch (Exception exc)
 					{

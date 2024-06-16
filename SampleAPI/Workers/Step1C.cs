@@ -16,6 +16,6 @@ public class Step1C(IQueue queue, IStatusRepository<string> statusRepository, IL
 		return Step2.CompletedStatus;
 	}
 
-	protected override async Task OnCompleted(string status, Document payload, CancellationToken stoppingToken) =>
+	protected override async Task OnCompletedAsync(string status, Document payload, CancellationToken stoppingToken) =>
 		await Step2.StartWhenReady(Queue, Status, payload);
 }
