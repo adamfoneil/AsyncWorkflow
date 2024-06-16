@@ -97,15 +97,13 @@ public class DapperWorkflow
 		return new StatusRepository<string>(connectionString, dbObjects);
 	}
 
-	private static IOptions<AsyncWorkflowOptions> GetOptions()
+	private static IOptions<AsyncWorkflowOptions> GetOptions() => Options.Create(new AsyncWorkflowOptions
 	{
-		return Options.Create(new AsyncWorkflowOptions
-		{
-			QueueTable = new AsyncWorkflowOptions.ObjectName("worker", "Queue"),
-			LogTable = new AsyncWorkflowOptions.ObjectName("worker", "Error"),
-			StatusTable = new AsyncWorkflowOptions.ObjectName("worker", "Status")
-		});
-	}
+		QueueTable = new AsyncWorkflowOptions.ObjectName("worker", "Queue"),
+		LogTable = new AsyncWorkflowOptions.ObjectName("worker", "Error"),
+		StatusTable = new AsyncWorkflowOptions.ObjectName("worker", "Status")
+	});
+
 }
 
 internal record Payload(int Id, string Description, string UserName) : ITrackedPayload<int>
