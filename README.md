@@ -23,7 +23,7 @@ You have many options for a queue backing store and data access approach. Dapper
 
 # Sample API
 A very simple implementation is in the [SampleAPI](https://github.com/adamfoneil/AsyncWorkflow/tree/master/SampleAPI) project.
-- See [Program.cs](https://github.com/adamfoneil/AsyncWorkflow/tree/master/SampleAPI) to see how an API project would be configured
+- See [Program.cs](https://github.com/adamfoneil/AsyncWorkflow/tree/master/SampleAPI/Program.cs) to see how an API project would be configured
 - See [appsettings.json](https://github.com/adamfoneil/AsyncWorkflow/blob/master/SampleAPI/appsettings.json#L13) configuration
 - I added several dummy [workers](https://github.com/adamfoneil/AsyncWorkflow/tree/master/SampleAPI/Workers). All they do is delay a random number of seconds
 - You can test this by clicking "Debug" on the `/process` endpoint post in the [.http](https://github.com/adamfoneil/AsyncWorkflow/blob/master/SampleAPI/SampleAPI.http) file. This is simulating a file upload (although there's no actual content being uploaded -- it's just a file name being provided).
