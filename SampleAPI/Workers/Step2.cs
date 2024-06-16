@@ -21,7 +21,7 @@ public class Step2(IQueue queue, IStatusRepository<string> statusRepository, ILo
 
 	public static async Task StartWhenReady(IQueue queue, IStatusRepository<string> status, Document document)
 	{
-		if (await status.All(document.Key, CompletedStatus, nameof(Step1A), nameof(Step1B), nameof(Step1C)))
+		if (await status.AllAsync(document.Key, CompletedStatus, nameof(Step1A), nameof(Step1B), nameof(Step1C)))
 		{
 			await queue.EnqueuePayloadAsync(Environment.MachineName, nameof(Step2), document);
 		}

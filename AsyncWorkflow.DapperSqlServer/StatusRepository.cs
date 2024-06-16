@@ -61,7 +61,7 @@ public class StatusRepository<TKey>(string connectionString, DbObjects dbObjects
 		return new(result.Key, result.Handler, result.Status, result.Duration, result.Timestamp);
 	}
 
-	public async Task<bool> All(TKey key, string status, params string[] handlers)
+	public async Task<bool> AllAsync(TKey key, string status, params string[] handlers)
 	{
 		var statuses = (await GetAsync(key)).ToDictionary(row => row.Handler, row => row.Status);
 		return handlers.All(handler => statuses.TryGetValue(handler, out var recordedStatus) && status == recordedStatus);
