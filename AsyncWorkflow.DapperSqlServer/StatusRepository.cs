@@ -10,13 +10,13 @@ public class StatusRepository<TKey>(string connectionString, DbObjects dbObjects
 	private readonly string _connectionString = connectionString;
 	private readonly DbObjects _dbObjects = dbObjects;
 
-	public async Task SetAsync(StatusEntry<TKey> history)
+	public async Task SetAsync(StatusEntry<TKey> entry)
 	{
 		using var cn = new SqlConnection(_connectionString);
-		await SetAsync(cn, history);
+		await SetAsync(cn, entry);
 	}
 
-	public async Task SetAsync(SqlConnection connection, StatusEntry<TKey> status)
+	public async Task SetAsync(SqlConnection connection, StatusEntry<TKey> entry)
 	{
 		await connection.ExecuteAsync(
 			$@"MERGE INTO {_dbObjects.StatusTable} AS [target]
@@ -29,7 +29,7 @@ public class StatusRepository<TKey>(string connectionString, DbObjects dbObjects
 			WHEN NOT MATCHED THEN
 				INSERT ([Key], [Handler], [Status], [Timestamp], [Duration])
 				VALUES ([source].[Key], [source].[Handler], [source].[Status], [source].[Timestamp], [source].[Duration]);",
-			new { status.Key, status.Handler, status.Status, status.Duration, Timestamp = status.Timestamp ?? DateTime.UtcNow });
+			new { entry.Key, entry.Handler, entry.Status, entry.Duration, Timestamp = entry.Timestamp ?? DateTime.UtcNow });
 	}
 
 	public async Task<IEnumerable<StatusEntry<TKey>>> GetAsync(TKey key)
@@ -46,22 +46,24 @@ public class StatusRepository<TKey>(string connectionString, DbObjects dbObjects
 		return results.Select(row => new StatusEntry<TKey>(row.Key, row.Handler, row.Status, row.Duration, row.Timestamp));
 	}
 
-	public async Task<StatusEntry<TKey>> GetAsync(TKey key, string handler)
+	public async Task<StatusEntry<TKey>?> GetAsync(TKey key, string handler)
 	{
 		using var cn = new SqlConnection(_connectionString);
 		return await GetAsync(cn, key, handler);
 	}
 
-	public async Task<StatusEntry<TKey>> GetAsync(SqlConnection connection, TKey key, string handler)
+	public async Task<StatusEntry<TKey>?> GetAsync(SqlConnection connection, TKey key, string handler)
 	{
-		var result = await connection.QuerySingleOrDefaultAsync<StatusEntryInternal<TKey>>(
+		var result = await connection.QuerySingleOrDefaultAsync<StatusEntryInternal<TKey>?>(
 			$@"SELECT * FROM {_dbObjects.StatusTable} WHERE [Key]=@key AND [Handler]=@handler",
 			new { key, handler });
+
+		if (result is null) return default;
 
 		return new(result.Key, result.Handler, result.Status, result.Duration, result.Timestamp);
 	}
 
-	public async Task<bool> AllAsync(TKey key, string status, params string[] handlers)
+	public async Task<bool> AllHaveStatusAsync(TKey key, string status, params string[] handlers)
 	{
 		var statuses = (await GetAsync(key)).ToDictionary(row => row.Handler, row => row.Status);
 		return handlers.All(handler => statuses.TryGetValue(handler, out var recordedStatus) && status == recordedStatus);
