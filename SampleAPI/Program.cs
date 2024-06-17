@@ -24,9 +24,9 @@ app.UseDapperSqlServerAsyncWorkflow();
 app.MapPost("/process", async (IQueue queue, Document document) =>
 {
 	// the first 3 processes run in parallel
-	await queue.EnqueuePayloadAsync(Environment.MachineName, nameof(Step1A), document);
-	await queue.EnqueuePayloadAsync(Environment.MachineName, nameof(Step1B), document);
-	await queue.EnqueuePayloadAsync(Environment.MachineName, nameof(Step1C), document);
+	await queue.EnqueuePayloadAsync(nameof(Step1A), document);
+	await queue.EnqueuePayloadAsync(nameof(Step1B), document);
+	await queue.EnqueuePayloadAsync(nameof(Step1C), document);
 	// Step2 runs automatically after the first 3 are finished
 	return Results.Ok("Processing started");
 });

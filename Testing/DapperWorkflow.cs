@@ -39,7 +39,7 @@ public class DapperWorkflow
 		var machineName = Environment.MachineName;
 
 		var enqueuedPayload = new Payload(232898, "whatever", "nobody.inparticular");
-		var (msgId, timestamp) = await queue.EnqueuePayloadAsync(machineName, DefaultHandler, enqueuedPayload);
+		var (msgId, timestamp) = await queue.EnqueuePayloadAsync(DefaultHandler, enqueuedPayload);
 
 		var dequeuedMessage = await queue.DequeueAsync(machineName, DefaultHandler, CancellationToken.None);
 		var dequeuedPayload = JsonSerializer.Deserialize<Payload>(dequeuedMessage!.Payload);

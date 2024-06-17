@@ -23,7 +23,7 @@ public class Step2(IQueue queue, IStatusRepository<string> statusRepository, ILo
 	{
 		if (await status.AllHaveStatusAsync(document.Key, CompletedStatus, nameof(Step1A), nameof(Step1B), nameof(Step1C)))
 		{
-			await queue.EnqueuePayloadAsync(Environment.MachineName, nameof(Step2), document);
+			await queue.EnqueuePayloadAsync(nameof(Step2), document);
 		}
 	}
 }
