@@ -21,6 +21,8 @@ var app = builder.Build();
 app.UseHttpsRedirection();
 app.UseDapperSqlServerAsyncWorkflow();
 
+app.MapGet("/", () => "Use the /process POST endpoint to test a simple workflow");
+
 app.MapPost("/process", async (IQueue queue, Document document) =>
 {
 	// the first 3 processes run in parallel
