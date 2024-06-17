@@ -51,6 +51,8 @@ public class DapperWorkflow
 
 		Assert.AreEqual(enqueuedPayload, dequeuedPayload);
 		Assert.AreEqual(ToNearestSecond(timestamp), ToNearestSecond(dequeuedMessage.Timestamp));
+
+		await queue.LogFailureAsync(machineName, dequeuedMessage, new Exception("Test"), CancellationToken.None);
 	}
 
 	[TestMethod]
@@ -60,14 +62,13 @@ public class DapperWorkflow
 		await repo.SetAsync(new StatusEntry<string>("2345abc", "Handler1", "Started"));
 
 		var status = await repo.GetAsync("2345abc", "Handler1");
-		Assert.IsTrue(status.Status.Equals("Started"));
+		Assert.IsTrue(status!.Status.Equals("Started"));
 
 		await repo.SetAsync(new StatusEntry<string>("2345abc", "Handler1", "Completed"));
 		status = await repo.GetAsync("2345abc", "Handler1");
-		Assert.IsTrue(status.Status.Equals("Completed"));
+		Assert.IsTrue(status!.Status.Equals("Completed"));
 
 		var allStatuses = await repo.GetAsync("2345abc");
-
 	}
 
 	/// <summary>

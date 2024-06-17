@@ -69,20 +69,21 @@ public abstract class WorkflowBackgroundService<TPayload, TKey>(
 	{
 		try
 		{
-			var message = await Queue.DequeueAsync(MachineName, HandlerName, stoppingToken);
+			var message = await Queue.DequeueAsync(MachineName, HandlerName, stoppingToken);			
 
 			if (message is not null)
 			{
+				var payload = JsonSerializer.Deserialize<TPayload>(message.Payload) ?? throw new Exception($"Couldn't deserialize payload from queue message Id {message.Id}");
+
 				try
 				{
-					Logger.LogDebug("Starting {HandlerName} of message {@message}", HandlerName, message);
-					var payload = JsonSerializer.Deserialize<TPayload>(message.Payload) ?? throw new Exception($"Couldn't deserialize payload from queue message Id {message.Id}");
+					Logger.LogDebug("Starting {HandlerName} of message {@message}", HandlerName, message);					
 					return (await ProcessMessageAsync(message, payload, stoppingToken), payload);
 				}
 				catch (Exception exc)
 				{
 					Logger.LogError(exc, "ProcessNextMessageAsync failed after dequeue {@message}", message);
-					await Queue.LogFailureAsync(MachineName, message, exc, stoppingToken);
+					await Queue.LogFailureAsync(MachineName, payload, exc, stoppingToken);
 				}
 				finally
 				{

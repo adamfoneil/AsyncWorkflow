@@ -20,13 +20,13 @@ public class DbObjects(string connectionString, IOptions<AsyncWorkflowOptions> o
 
 	public DbTable LogTable => new(_options.LogTable, new()
 	{
-		["Id"] = "bigint IDENTITY(1,1) PRIMARY KEY",
-		["MessageId"] = "nvarchar(36) NOT NULL",
+		["Id"] = "bigint IDENTITY(1,1) PRIMARY KEY",		
 		["Timestamp"] = "datetime NOT NULL",
 		["MachineName"] = "nvarchar(100) NOT NULL",
 		["Handler"] = "nvarchar(100) NOT NULL",
-		["Payload"] = "nvarchar(max) NULL",
-		["Exception"] = "nvarchar(100) NULL",
+		["Key"] = $"{_options.StatusTableKeyColumnType} NULL",
+		["Payload"] = "nvarchar(max) NOT NULL",
+		["Exception"] = "nvarchar(100) NOT NULL",
 		["StackTrace"] = "nvarchar(max) NULL"
 	});
 

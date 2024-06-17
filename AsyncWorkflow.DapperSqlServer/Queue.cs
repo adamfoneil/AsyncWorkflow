@@ -43,9 +43,22 @@ public class Queue(string connectionString, DbObjects dbObjects) : IQueue
 			)", new { message.Id, Timestamp = DateTime.UtcNow, machineName, message.Handler, message.Payload });
 	}
 
-	public Task LogFailureAsync(string machineName, Message message, Exception exception, CancellationToken cancellationToken)
+	public async Task LogFailureAsync<TPayload, TKey>(string machineName, TPayload payload, Exception exception, CancellationToken cancellationToken) where TKey : notnull
 	{
-		throw new NotImplementedException();
+		using var cn = new SqlConnection(_connectionString);
+		await LogFailureAsync(cn, machineName, payload, exception, cancellationToken);
+	}
+
+	public async Task LogFailureAsync<TPayload, TKey>(SqlConnection connection, string machineName, string handler, TPayload payload, Exception exception, CancellationToken cancellationToken) where TKey : notnull
+	{
+		var key = (payload as ITrackedPayload<TKey>)?.Key;
+
+		await connection.ExecuteAsync(
+			$@"INSERT INTO {_dbObjects.LogTable} (
+				[Timestamp], [MachineName], [Handler], [Key], [Payload], [Exception], [StackTrace]
+			) VALUES (
+				@timestamp, @machineName, @handler, @key, @payload, @exception, @stackTrace
+			)", new { timestamp = DateTime.UtcNow, machineName, handler, payload.K });
 	}
 }
 
