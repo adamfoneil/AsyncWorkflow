@@ -21,7 +21,7 @@ public class DapperWorkflow
 	[ClassCleanup]
 	public static void Cleanup()
 	{
-		LocalDb.DropDatabase(DbName);
+		//LocalDb.DropDatabase(DbName);
 	}
 
 	[TestMethod]
@@ -50,9 +50,24 @@ public class DapperWorkflow
 		var dequeuedTicks = dequeuedMessage.Timestamp.Ticks;
 
 		Assert.AreEqual(enqueuedPayload, dequeuedPayload);
-		Assert.AreEqual(ToNearestSecond(timestamp), ToNearestSecond(dequeuedMessage.Timestamp));
+		Assert.AreEqual(ToNearestSecond(timestamp), ToNearestSecond(dequeuedMessage.Timestamp));		
+	}
 
-		await queue.LogFailureAsync(machineName, dequeuedMessage, new Exception("Test"), CancellationToken.None);
+	[TestMethod]
+	public async Task LogError()
+	{
+		var queue = GetQueue();
+
+		var payload = new Payload(933, "some new thing", "nouser");
+
+		try
+		{
+			throw new Exception("this is a sample error");
+		}
+		catch (Exception exc)
+		{
+			await queue.LogErrorAsync(Environment.MachineName, nameof(LogError), payload, exc, CancellationToken.None);
+		}
 	}
 
 	[TestMethod]
@@ -101,7 +116,7 @@ public class DapperWorkflow
 	private static IOptions<AsyncWorkflowOptions> GetOptions() => Options.Create(new AsyncWorkflowOptions
 	{
 		QueueTable = new AsyncWorkflowOptions.ObjectName("worker", "Queue"),
-		LogTable = new AsyncWorkflowOptions.ObjectName("worker", "Error"),
+		ErrorTable = new AsyncWorkflowOptions.ObjectName("worker", "Error"),
 		StatusTable = new AsyncWorkflowOptions.ObjectName("worker", "Status")
 	});
 

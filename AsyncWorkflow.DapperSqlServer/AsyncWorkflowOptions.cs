@@ -3,7 +3,7 @@
 public class AsyncWorkflowOptions
 {
 	public ObjectName QueueTable { get; set; } = default!;
-	public ObjectName LogTable { get; set; } = default!;
+	public ObjectName ErrorTable { get; set; } = default!;
 	public ObjectName StatusTable { get; set; } = default!;
 	public string StatusTableKeyColumnType { get; set; } = "nvarchar(36)";
 

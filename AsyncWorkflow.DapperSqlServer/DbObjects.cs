@@ -18,7 +18,7 @@ public class DbObjects(string connectionString, IOptions<AsyncWorkflowOptions> o
 		["Payload"] = "nvarchar(max) NULL"
 	});
 
-	public DbTable LogTable => new(_options.LogTable, new()
+	public DbTable ErrorTable => new(_options.ErrorTable, new()
 	{
 		["Id"] = "bigint IDENTITY(1,1) PRIMARY KEY",		
 		["Timestamp"] = "datetime NOT NULL",
@@ -26,7 +26,7 @@ public class DbObjects(string connectionString, IOptions<AsyncWorkflowOptions> o
 		["Handler"] = "nvarchar(100) NOT NULL",
 		["Key"] = $"{_options.StatusTableKeyColumnType} NULL",
 		["Payload"] = "nvarchar(max) NOT NULL",
-		["Exception"] = "nvarchar(100) NOT NULL",
+		["Exception"] = "nvarchar(max) NOT NULL",
 		["StackTrace"] = "nvarchar(max) NULL"
 	});
 
@@ -47,7 +47,7 @@ public class DbObjects(string connectionString, IOptions<AsyncWorkflowOptions> o
 	{
 		using var connection = new SqlConnection(_connectionString);
 		QueueTable.EnsureExists(connection);
-		LogTable.EnsureExists(connection);
+		ErrorTable.EnsureExists(connection);
 		StatusTable.EnsureExists(connection);
 	}
 }

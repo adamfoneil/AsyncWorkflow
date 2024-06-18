@@ -77,13 +77,17 @@ public abstract class WorkflowBackgroundService<TPayload, TKey>(
 
 				try
 				{
-					Logger.LogDebug("Starting {HandlerName} of message {@message}", HandlerName, message);					
-					return (await ProcessMessageAsync(message, payload, stoppingToken), payload);
+					Logger.LogDebug("Starting {HandlerName} of message {@message}", HandlerName, message);
+					var status = await ProcessMessageAsync(message, payload, stoppingToken);
+					return (status, payload);
 				}
 				catch (Exception exc)
 				{
 					Logger.LogError(exc, "ProcessNextMessageAsync failed after dequeue {@message}", message);
-					await Queue.LogFailureAsync(MachineName, payload, exc, stoppingToken);
+					if (payload is ITrackedPayload<TKey> trackedPaylolad)
+					{
+						await Queue.LogErrorAsync(MachineName, HandlerName, trackedPaylolad, exc, stoppingToken);
+					}
 				}
 				finally
 				{

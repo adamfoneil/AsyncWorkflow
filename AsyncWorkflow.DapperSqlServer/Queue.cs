@@ -3,6 +3,7 @@ using AsyncWorkflow.Interfaces;
 using AsyncWorkflow.Records;
 using Dapper;
 using Microsoft.Data.SqlClient;
+using System.Text.Json;
 
 namespace AsyncWorkflow.DapperSqlServer;
 
@@ -43,23 +44,30 @@ public class Queue(string connectionString, DbObjects dbObjects) : IQueue
 			)", new { message.Id, Timestamp = DateTime.UtcNow, machineName, message.Handler, message.Payload });
 	}
 
-	public async Task LogFailureAsync<TPayload, TKey>(string machineName, TPayload payload, Exception exception, CancellationToken cancellationToken) where TKey : notnull
+	public async Task LogErrorAsync<TKey>(string machineName, string handler, ITrackedPayload<TKey> payload, Exception exception, CancellationToken cancellationToken) where TKey : notnull
 	{
 		using var cn = new SqlConnection(_connectionString);
-		await LogFailureAsync(cn, machineName, payload, exception, cancellationToken);
+		await LogErrorAsync(cn, machineName, handler, payload, exception, cancellationToken);
 	}
 
-	public async Task LogFailureAsync<TPayload, TKey>(SqlConnection connection, string machineName, string handler, TPayload payload, Exception exception, CancellationToken cancellationToken) where TKey : notnull
-	{
-		var key = (payload as ITrackedPayload<TKey>)?.Key;
-
+	public async Task LogErrorAsync<TKey>(SqlConnection connection, string machineName, string handler, ITrackedPayload<TKey> trackedPayload, Exception exception, CancellationToken cancellationToken) where TKey : notnull =>
 		await connection.ExecuteAsync(
-			$@"INSERT INTO {_dbObjects.LogTable} (
+			$@"INSERT INTO {_dbObjects.ErrorTable} (
 				[Timestamp], [MachineName], [Handler], [Key], [Payload], [Exception], [StackTrace]
 			) VALUES (
 				@timestamp, @machineName, @handler, @key, @payload, @exception, @stackTrace
-			)", new { timestamp = DateTime.UtcNow, machineName, handler, payload.K });
-	}
+			)", new 
+			{ 
+				timestamp = DateTime.UtcNow, 
+				machineName, 
+				handler, 
+				trackedPayload.Key, 
+				payload = JsonSerializer.Serialize(trackedPayload),
+				exception = ExceptionHeader(exception), 
+				exception.StackTrace 
+			});
+
+	private static string ExceptionHeader(Exception exception) => $"{exception.GetType().Name}: {exception.Message}";
 }
 
 internal class MessageInternal

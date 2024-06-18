@@ -6,5 +6,5 @@ public interface IQueue
 {
 	Task EnqueueAsync(string machineName, Message message);
 	Task<Message?> DequeueAsync(string machineName, string handler, CancellationToken cancellationToken);
-	Task LogFailureAsync<TPayload, TKey>(string machineName, string handler, TPayload payload, Exception exception, CancellationToken cancellationToken) where TKey : notnull;
+	Task LogErrorAsync<TKey>(string machineName, string handler, ITrackedPayload<TKey> payload, Exception exception, CancellationToken cancellationToken) where TKey : notnull;
 }
